@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Непопулярные туристические места Челябинской области</title>
+
+<style>
+  :root {
+    --cream: #faf6f0;
+    --milk: #f5efe6;
+    --parchment: #ede4d6;
+    --sand: #d9cfc0;
+    --muted-sage: #b8c4b0;
+    --dusty-rose: #d4b8b0;
+    --warm-taupe: #a89585;
+    --deep-taupe: #7a6a5a;
+    --text-main: #3d3028;
+    --text-secondary: #6b5c4e;
+    --text-light: #9a8878;
+    --accent: #8f7060;
+    --accent-soft: #c4a898;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Calibri', 'Carlito', 'Segoe UI', sans-serif;
+    background: var(--cream);
+    color: var(--text-main);
+    font-weight: 400;
+    overflow-x: hidden;
+    font-size: 20px;
+  }
+
+  /* PRELOADER */
+  #preloader {
+    position: fixed; inset: 0;
+    background: var(--milk);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 9999;
+    transition: opacity 0.8s ease, visibility 0.8s ease;
+  }
+  #preloader.hidden { opacity: 0; visibility: hidden; }
+  .preloader-text {
+    font-family: 'Calibri', 'Carlito', 'Segoe UI', sans-serif;
+    font-size: clamp(1.2rem, 3vw, 1.8rem);
+    font-style: italic;
+    color: var(--text-secondary);
+    letter-spacing: 0.08em;
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:.4} 50%{opacity:1} }
+
+  /* HEADER */
+  header {
+    position: fixed; top: 0; left: 0; right: 0;
+    z-index: 100;
+    background: rgba(250,246,240,0.88);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--parchment);
+    padding: 0 clamp(1.5rem, 5vw, 4rem);
+    height: 64px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .logo {
+    font-family: 'Calibri', 'Carlito', 'Segoe UI', sans-serif;
+    font-size: 1.2rem;
+    font-style: italic;
+    color: var(--text-secondary);
+    letter-spacing: 0.04em;
+  }
+  nav { display: flex; gap: 2rem; }
+  nav a {
+    text-decoration: none;
+    font-size: 0.78rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-light);
+    transition: color 0.3s;
+  }
+  nav a:hover { color: var(--text-main); }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center;
+    padding: clamp(5rem, 10vw, 8rem) clamp(1.5rem, 5vw, 4rem) 4rem;
+    background: linear-gradient(160deg, var(--cream) 0%, var(--milk) 50%, var(--parchment) 100%);
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse 70% 60% at 30% 40%, rgba(212,184,176,0.18) 0%, transparent 70%),
+                radial-gradient(ellipse 50% 50% at 75% 70%, rgba(184,196,176,0.15) 0%, transparent 60%);
+    pointer-events: none;
+  }
+  .hero-eyebrow {
+    font-size: 0.72rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--text-light);
+    margin-bottom: 1.8rem;
+    opacity: 0; animation: fadeUp 0.9s 0.3s ease forwards;
+  }
+  .hero-title {
+    font-family: 'Calibri', 'Carlito', 'Segoe UI', sans-serif;
+    font-size: clamp(2.2rem, 6vw, 5rem);
+    font-weight: 300;
+    line-height: 1.05;
+    color: var(--text-main);
+    max-width: 860px;
+    margin-bottom: 2rem;
+    opacity: 0; animation: fadeUp 0.9s 0.5s ease forwards;
+  }
+  .hero-title em { font-style: italic; color: var(--accent); }
+  .hero-desc {
+    font-size: clamp(1.2rem, 2vw, 1.45rem);
+    line-height: 1.8;
+    color: var(--text-secondary);
+    max-width: 580px;
+    margin-bottom: 3rem;
+    opacity: 0; animation: fadeUp 0.9s 0.7s ease forwards;
+  }
+  .hero-meta {
+    font-size: 0.8rem;
+    letter-spacing: 0.1em;
+    color: var(--text-light);
+    opacity: 0; animation: fadeUp 0.9s 0.9s ease forwards;
+  }
+  .hero-scroll {
+    position: absolute; bottom: 2.5rem; left: 50%; transform: translateX(-50%);
+    display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
+    opacity: 0; animation: fadeUp 0.9s 1.2s ease forwards;
+  }
+  .scroll-line {
+    width: 1px; height: 48px;
+    background: linear-gradient(to bottom, var(--sand), transparent);
+    animation: scrollPulse 2s ease-in-out infinite;
+  }
+  .scroll-label { font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-light); }
+  @keyframes scrollPulse { 0%,100%{transform:scaleY(1)} 50%{transform:scaleY(1.3)} }
+
+  /* STATS ROW */
+  .stats {
+    display: flex; gap: 0; flex-wrap: wrap;
+    border-top: 1px solid var(--parchment);
+    border-bottom: 1px solid var(--parchment);
+    background: var(--milk);
+  }
+  .stat-item {
+    flex: 1; min-width: 160px;
+    padding: 2.5rem clamp(1.5rem, 3vw, 3rem);
+    text-align: center;
+    border-right: 1px solid var(--parchment);
+    opacity: 0; transform: translateY(20px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+  .stat-item:last-child { border-right: none; }
+  .stat-item.visible { opacity: 1; transform: none; }
+  .stat-num {
+    font-family: 'Calibri', 'Carlito', 'Segoe UI', sans-serif;
+    font-size: clamp(2.4rem, 4.5vw, 3.5rem);
+    font-weight: 600;
+    color: var(--accent);
+    display: block; margin-bottom: 0.4rem;
+  }
+  .stat-label { font-size: 0.9rem; letter-spacing: 0.08em; color: var(--text-light); text-transform: uppercase; }
+
+  /* SECTIONS */
+  section { padding: clamp(4rem, 8vw, 7rem) clamp(1.5rem, 7vw, 6rem); }
+  section:nth-child(even) { background: var(--milk); }
+
+  .section-tag {
+    font-size: 0.7rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--text-light);
+    margin-bottom: 1rem;
+  }
+  .section-title {
+    font-family: 'Calibri', 'Carlito', 'Segoe UI', sans-serif;
+    font-size: clamp(1.6rem, 3.5vw, 2.6rem);
+    font-weight: 300;
+    line-height: 1.15;
+    color: var(--text-main);
+    margin-bottom: 2rem;
+  }
+  .section-title em { font-style: italic; color: var(--accent); }
+
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(2rem, 5vw, 5rem);
+    align-items: start;
+    margin-top: 3rem;
+  }
+  @media(max-width:700px){ .two-col{grid-template-columns:1fr;} }
+
+  p {
+    font-size: clamp(1.15rem, 1.8vw, 1.35rem);
+    line-height: 1.9;
+    color: var(--text-secondary);
+    margin-bottom: 1.4rem;
+  }
+
+  /* CARDS */
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem; margin-top: 3rem; }
+  .card {
+    background: var(--cream);
+    border: 1px solid var(--parchment);
+    border-radius: 2px;
+    padding: 2rem;
+    opacity: 0; transform: translateY(24px);
+    transition: opacity 0.6s ease, transform 0.6s ease, box-shadow 0.3s;
+  }
+  .card.visible { opacity: 1; transform: none; }
+  .card:hover { box-shadow: 0 8px 32px rgba(100,70,50,0.08); }
+  .card-num {
+    font-family: 'Calibri', 'Carlito', 'Segoe UI', sans-serif;
+    font-size: 2.5rem;
+    color: var(--parchment);
+    line-height: 1;
+    margin-bottom: 0.8rem;
+    font-weight: 600;
+  }
+  .card-title {
+    font-family: 'Calibri', 'Carlito', 'Segoe UI', sans-serif;
+    font-size: 1.55rem;
+    color: var(--text-main);
+    margin-bottom: 0.8rem;
+    font-weight: 400;
+  }
+  .card p { font-size: 1.1rem; margin-bottom: 0; color: var(--text-secondary); }
+
+  /* ACCORDION */
+  .accordion { margin-top: 2.5rem; border-top: 1px solid var(--parchment); }
+  .acc-item { border-bottom: 1px solid var(--parchment); }
+  .acc-btn {
+    width: 100%; background: none; border: none; cursor: pointer;
+    padding: 1.4rem 0;
+    display: flex; align-items: center; justify-content: space-between;
+    font-family: 'Calibri', 'Carlito', 'Segoe UI', sans-serif;
+    font-size: 1.45rem;
+    color: var(--text-main);
+    text-align: left;
+    transition: color 0.3s;
+  }
+  .acc-btn:hover { color: var(--accent); }
+  .acc-arrow {
+    width: 20px; height: 20px; flex-shrink: 0;
+    border-right: 1px solid currentColor;
+    border-bottom: 1px solid currentColor;
+    transform: rotate(45deg);
+    transition: transform 0.35s ease;
+    margin-left: 1rem;
+  }
+  .acc-btn.open .acc-arrow { transform: rotate(-135deg); }
+  .acc-body {
+    max-height: 0; overflow: hidden;
+    transition: max-height 0.45s ease;
+  }
+  .acc-body.open { max-height: 600px; }
+  .acc-inner { padding: 0 0 1.4rem; }
+  .acc-inner p { font-size: 1.15rem; margin-bottom: 0.8rem; }
+
+  /* TABLE */
+  .table-wrap { overflow-x: auto; margin-top: 2.5rem; }
+  table { width: 100%; border-collapse: collapse; font-size: 1.1rem; }
+  th {
+    background: var(--parchment);
+    padding: 0.9rem 1.2rem;
+    text-align: left;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    color: var(--text-main);
+    font-size: 0.9rem;
+    text-transform: uppercase;
+  }
+  td {
+    padding: 0.9rem 1.2rem;
+    border-bottom: 1px solid var(--parchment);
+    color: var(--text-secondary);
+    vertical-align: top;
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(212,184,176,0.1); }
+
+  /* CONCLUSION */
+  .conclusion {
+    background: linear-gradient(135deg, var(--parchment) 0%, var(--milk) 100%);
+    border: 1px solid var(--sand);
+    border-radius: 2px;
+    padding: clamp(2.5rem, 5vw, 4rem);
+    margin-top: 2.5rem;
+  }
+  .conclusion-list { list-style: none; }
+  .conclusion-list li {
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--sand);
+    font-size: clamp(1.15rem, 1.8vw, 1.35rem);
+    color: var(--text-secondary);
+    line-height: 1.7;
+    display: grid;
+    grid-template-columns: 1.5rem 1fr;
+    gap: 1rem;
+    align-items: start;
+  }
+  .conclusion-list li:last-child { border-bottom: none; }
+  .conclusion-list li::before {
+    content: attr(data-n);
+    font-family: 'Calibri', 'Carlito', 'Segoe UI', sans-serif;
+    font-size: 1.1rem;
+    color: var(--accent-soft);
+    font-style: italic;
+    line-height: 1.7;
+  }
+
+  /* FOOTER */
+  footer {
+    background: var(--deep-taupe);
+    color: rgba(250,246,240,0.6);
+    padding: 3rem clamp(1.5rem, 7vw, 6rem);
+    display: flex; flex-wrap: wrap; gap: 1rem;
+    justify-content: space-between; align-items: center;
+  }
+  footer span { font-size: 0.82rem; letter-spacing: 0.06em; }
+  footer a {
+    color: rgba(250,246,240,0.4);
+    text-decoration: none;
+    font-size: 0.78rem;
+  }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: none; }
+  }
+  .reveal {
+    opacity: 0; transform: translateY(28px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .reveal.visible { opacity: 1; transform: none; }
+
+  /* HAMBURGER */
+  .burger {
+    display: none;
+    flex-direction: column; justify-content: center; gap: 5px;
+    background: none; border: none; cursor: pointer;
+    padding: 6px; z-index: 200;
+  }
+  .burger span {
+    display: block; width: 22px; height: 1.5px;
+    background: var(--text-secondary);
+    transition: transform 0.3s ease, opacity 0.3s ease;
+  }
+  .burger.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+  .burger.open span:nth-child(2) { opacity: 0; }
+  .burger.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+
+  /* MOBILE MENU OVERLAY */
+  .mobile-menu {
+    display: none;
+    position: fixed; inset: 0; top: 64px;
+    background: rgba(250,246,240,0.97);
+    backdrop-filter: blur(14px);
+    z-index: 99;
+    flex-direction: column; align-items: center; justify-content: center;
+    gap: 2.5rem;
+  }
+  .mobile-menu.open { display: flex; }
+  .mobile-menu a {
+    text-decoration: none;
+    font-size: 1.3rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    transition: color 0.3s;
+  }
+  .mobile-menu a:hover { color: var(--text-main); }
+
+  /* NAV MOBILE */
+  @media(max-width:640px){
+    nav { display: none; }
+    .burger { display: flex; }
+
+    .logo { font-size: 0.85rem; max-width: 70%; }
+
+    body { font-size: 16px; }
+
+    section { padding: 3rem 1.2rem; }
+
+    .hero { padding: 6rem 1.2rem 3rem; }
+    .hero-title { font-size: clamp(1.7rem, 8vw, 2.4rem); }
+    .hero-desc { font-size: 1rem; }
+
+    .stats { flex-direction: column; }
+    .stat-item { border-right: none; border-bottom: 1px solid var(--parchment); min-width: unset; padding: 1.5rem 1.2rem; }
+    .stat-item:last-child { border-bottom: none; }
+
+    .section-title { font-size: clamp(1.4rem, 6vw, 2rem); }
+
+    p { font-size: 1rem; line-height: 1.75; }
+
+    .cards { grid-template-columns: 1fr; gap: 1rem; }
+    .card { padding: 1.4rem; }
+    .card-title { font-size: 1.2rem; }
+
+    .acc-btn { font-size: 1.05rem; padding: 1.2rem 0; }
+    .acc-inner p { font-size: 1rem; }
+
+    table { font-size: 0.88rem; }
+    th { font-size: 0.75rem; padding: 0.7rem 0.8rem; }
+    td { padding: 0.7rem 0.8rem; }
+
+    .pull-quote { font-size: 1.1rem; padding-left: 1rem; }
+
+    .conclusion { padding: 1.5rem; }
+    .conclusion-list li { font-size: 1rem; }
+
+    footer { flex-direction: column; text-align: center; gap: 0.8rem; padding: 2rem 1.2rem; }
+  }
+
+  /* DIVIDER */
+  .divider { display: none; }
+
+  /* QUOTE PULL */
+  .pull-quote {
+    font-family: 'Calibri', 'Carlito', 'Segoe UI', sans-serif;
+    font-size: clamp(1.3rem, 3vw, 2rem);
+    font-style: italic;
+    color: var(--warm-taupe);
+    line-height: 1.5;
+    border-left: 2px solid var(--dusty-rose);
+    padding-left: 1.8rem;
+    margin: 2.5rem 0;
+  }
+</style>
+</head>
+<body>
+
+<div id="preloader">
+  <span class="preloader-text">Загрузка...</span>
+</div>
+
+<header>
+  <div class="logo">Непопулярные туристические места Челябинской области</div>
+  <nav>
+    <a href="#intro">Введение</a>
+    <a href="#potential">Потенциал</a>
+    <a href="#places">Места</a>
+    <a href="#compare">Сравнение</a>
+    <a href="#recs">Рекомендации</a>
+    <a href="#end">Вывод</a>
+  </nav>
+  <button class="burger" id="burger" aria-label="Меню" onclick="toggleMenu()">
+    <span></span><span></span><span></span>
+  </button>
+</header>
+
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#intro" onclick="closeMenu()">Введение</a>
+  <a href="#potential" onclick="closeMenu()">Потенциал</a>
+  <a href="#places" onclick="closeMenu()">Места</a>
+  <a href="#compare" onclick="closeMenu()">Сравнение</a>
+  <a href="#recs" onclick="closeMenu()">Рекомендации</a>
+  <a href="#end" onclick="closeMenu()">Вывод</a>
+</div>
+
+<!-- HERO -->
+<section class="hero" id="intro">
+  <p class="hero-eyebrow">Индивидуальный проект &nbsp;&nbsp; 10 «А» класс</p>
+  <h1 class="hero-title">
+    Непопулярные туристические места<br>Челябинской области
+  </h1>
+  <p class="hero-desc">
+    Систематизация информации о малоизвестных и перспективных туристических местах региона и разработка нового маршрута.
+  </p>
+  <p class="hero-meta">Патрин Николай &nbsp;&nbsp; Руководитель: Мальцева И.В. &nbsp;&nbsp; 2025/2026</p>
+  <div class="hero-scroll">
+  </div>
+</section>
+
+
+
+<!-- POTENTIAL -->
+<section id="potential">
+  <h2 class="section-title reveal">Туристический потенциал<br>Челябинской области</h2>
+  <div class="two-col">
+    <div>
+      <p class="reveal">Челябинская область расположена на стыке Европы и Азии, на восточных склонах Южного Урала. Регион нередко называют «Уральской Швейцарией» или «озёрным краем» — и это не случайно: горы, леса, тысячи живописных озёр формируют высокий рекреационный потенциал.</p>
+      <p class="reveal">Среди известных природных объектов — национальные парки Таганай и Зюраткуль, озёра Тургояк (прозрачность воды до 20 метров) и Увильды, Ильменский заповедник с более чем 260 минералами. Культурно-историческое богатство региона включает около 3000 объектов, важнейший из которых — Аркаим.</p>
+
+    </div>
+    <div>
+      <p class="reveal">Туризм играет значимую роль в экономике региона: создаёт рабочие места, способствует сохранению культурного и природного наследия, формирует позитивный образ территории.</p>
+      <p class="reveal">В последние годы в Челябинской области наблюдается рост туристического потока. Регион развивает семейный, познавательный и активный туризм. Горнолыжные комплексы, в частности «Солнечная долина», поддерживают интерес путешественников круглый год.</p>
+      <p class="reveal"><strong>Основная проблема</strong> — туристические потоки сосредоточены на 2–3 известных местах, тогда как десятки других объектов с не меньшим потенциалом остаются в тени.</p>
+    </div>
+  </div>
+
+  <div class="accordion" id="activity-acc">
+    <div class="acc-item">
+      <button class="acc-btn" onclick="toggleAcc(this)">Пешие походы и трекинг <span class="acc-arrow"></span></button>
+      <div class="acc-body"><div class="acc-inner"><p>От однодневных прогулок по Таганаю или Зюраткулю до многодневных категорийных походов через хребты Южно-Уральского заповедника. Маршруты доступны для разного уровня физической подготовки.</p></div></div>
+    </div>
+    <div class="acc-item">
+      <button class="acc-btn" onclick="toggleAcc(this)">Водный туризм <span class="acc-arrow"></span></button>
+      <div class="acc-body"><div class="acc-inner"><p>Сплавы по рекам Ай, Юрюзань, Большая Сатка привлекают и новичков, и опытных водников. Разнообразие рек позволяет выбрать маршрут любой сложности.</p></div></div>
+    </div>
+    <div class="acc-item">
+      <button class="acc-btn" onclick="toggleAcc(this)">Спелеотуризм <span class="acc-arrow"></span></button>
+      <div class="acc-body"><div class="acc-inner"><p>Область богата пещерами: Сергинские, Кургазакская, Сухокаменская, Игнатьевская, Колокольная — каждая со своей историей. Игнатьевская пещера представляет особую ценность благодаря древним наскальным рисункам.</p></div></div>
+    </div>
+    <div class="acc-item">
+      <button class="acc-btn" onclick="toggleAcc(this)">Горнолыжный спорт <span class="acc-arrow"></span></button>
+      <div class="acc-body"><div class="acc-inner"><p>Центры вблизи городов Миасс, Сатка, Трёхгорный предлагают трассы для лыжников и сноубордистов. «Солнечная долина» — один из ведущих горнолыжных курортов Урала.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- PLACES -->
+<section id="places">
+  <h2 class="section-title reveal">Малоизвестные<br>туристические объекты</h2>
+  <p class="reveal">Наряду с известными точками притяжения, в регионе существует множество не менее интересных мест, которые остаются в тени и почти не привлекают массового туризма.</p>
+  <div class="divider"></div>
+
+  <div class="cards">
+    <div class="card">
+      <div class="card-num">01</div>
+      <div class="card-title">Природные объекты</div>
+      <p>Гора Нургуш, Колокольная пещера, Серпиевский пещерный град, Игнатьевская пещера. Уникальны природой, но труднодоступны и практически лишены инфраструктуры. Привлекают узкий круг — любителей экотуризма и спелеологов.</p>
+    </div>
+    <div class="card">
+      <div class="card-num">02</div>
+      <div class="card-title">Историко-культурные объекты</div>
+      <p>Пугачевская пещера, окутанная легендами о Емельяне Пугачёве; Слюдорудник. Привлекают краеведов и любителей мистического туризма, однако туристические организации почти не занимаются их продвижением.</p>
+    </div>
+    <div class="card">
+      <div class="card-num">03</div>
+      <div class="card-title">Индустриальные объекты</div>
+      <p>Гидроэлектростанция «Пороги» на реке Большая Сатка — старейшая ГЭС России (1910 год); Коркинский угольный разрез. Впечатляют масштабом и открывают возможности для промышленного и экстремального туризма.</p>
+    </div>
+    <div class="card">
+      <div class="card-num">04</div>
+      <div class="card-title">Базы отдыха</div>
+      <p>«Светлячок» и «Уралочка» расположены в живописных местах у озёр, но нередко страдают от устаревшей инфраструктуры и нестабильного уровня сервиса. Потенциал есть, реализация — пока нет.</p>
+    </div>
+  </div>
+</section>
+
+<!-- COMPARE -->
+<section id="compare">
+  <h2 class="section-title reveal">Популярные vs непопулярные<br>места</h2>
+
+  <div class="table-wrap reveal">
+    <table>
+      <thead>
+        <tr>
+          <th>Критерий</th>
+          <th>Популярные места</th>
+          <th>Малоизвестные места</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Транспортная доступность</td>
+          <td>Хорошие дороги, парковки, организованный трансфер</td>
+          <td>Грунтовые дороги, часто нужен специальный транспорт или пеший переход</td>
+        </tr>
+        <tr>
+          <td>Инфраструктура</td>
+          <td>Экологические тропы, стенды, туалеты, питание, размещение</td>
+          <td>Отсутствует или на начальном этапе развития</td>
+        </tr>
+        <tr>
+          <td>Продвижение</td>
+          <td>СМИ, соцсети, официальные туристические программы</td>
+          <td>Практически не представлены в маркетинговых материалах</td>
+        </tr>
+        <tr>
+          <td>Уникальность</td>
+          <td>Высокая, но частично «затоптанная» массовым туризмом</td>
+          <td>Сохранена первозданность благодаря отсутствию потока</td>
+        </tr>
+        <tr>
+          <td>Потенциал</td>
+          <td>Реализован</td>
+          <td>Значительный, но не раскрытый</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p class="reveal" style="margin-top:2rem">Природные объекты обычно получают большее количество отзывов и высокие оценки — туристы ценят красоту и необычность природы. Базы отдыха, напротив, нередко получают жалобы на устаревшую инфраструктуру, нерегулярную уборку и низкое качество услуг — даже при выгодном расположении у озёр.</p>
+</section>
+
+<!-- RECS -->
+<section id="recs">
+  <h2 class="section-title reveal">Как раскрыть потенциал<br>малоизвестных мест</h2>
+  <div class="two-col">
+    <div class="accordion">
+      <div class="acc-item">
+        <button class="acc-btn" onclick="toggleAcc(this)">Инфраструктурные улучшения <span class="acc-arrow"></span></button>
+        <div class="acc-body"><div class="acc-inner"><p>Обустройство экологических троп, установка указателей и информационных стендов. Оборудование парковок, туалетов и мест для отдыха. Обновление и модернизация баз отдыха — ремонт домиков, регулярная уборка, горячая вода, расширение услуг.</p></div></div>
+      </div>
+      <div class="acc-item">
+        <button class="acc-btn" onclick="toggleAcc(this)">Маркетинг и продвижение <span class="acc-arrow"></span></button>
+        <div class="acc-body"><div class="acc-inner"><p>Разработка уникальных тематических маршрутов с ярким брендом. Активное использование социальных сетей и партнёрство с тревел-блогерами. Включение малоизвестных мест в официальные туристические карты и мобильные приложения региона.</p></div></div>
+      </div>
+      <div class="acc-item">
+        <button class="acc-btn" onclick="toggleAcc(this)">Безопасность и организация <span class="acc-arrow"></span></button>
+        <div class="acc-body"><div class="acc-inner"><p>Подготовка и сертификация гидов. Разработка безопасных экскурсионных программ. Введение разумных лимитов посещаемости для сохранения природных объектов.</p></div></div>
+      </div>
+      <div class="acc-item">
+        <button class="acc-btn" onclick="toggleAcc(this)">Событийный туризм <span class="acc-arrow"></span></button>
+        <div class="acc-body"><div class="acc-inner"><p>Ночные экскурсии по пещерам, геологические квесты, тематические фестивали. Гранты и субсидии малому бизнесу в сфере туризма в удалённых районах.</p></div></div>
+      </div>
+    </div>
+    <div>
+      <p class="reveal">Причины низкой популярности хорошо известны: транспортная недоступность, нехватка инфраструктуры, слабый маркетинг, сезонность и образ региона как промышленного центра.</p>
+      <p class="reveal">Однако эти барьеры устранимы. При комплексном подходе малоизвестные объекты способны существенно увеличить туристический поток, разгрузить популярные зоны и раскрыть подлинный потенциал Южного Урала.</p>
+    </div>
+  </div>
+</section>
+
+<!-- CONCLUSION -->
+<section id="end">
+  <h2 class="section-title reveal">Главные выводы</h2>
+  <div class="conclusion reveal">
+    <ul class="conclusion-list">
+      <li data-n="—">Гипотеза подтвердилась: популярность туристической зоны зависит от качества ухода за объектом и простоты его исследования для путешественников.</li>
+      <li data-n="—">Природные объекты стабильно получают высокие оценки. Базы отдыха проигрывают из-за устаревшей инфраструктуры и нестабильного сервиса — даже при выгодном расположении у озёр.</li>
+      <li data-n="—">Основные барьеры: слабая транспортная доступность, недостаток инфраструктуры (парковки, туалеты, тропы, указатели) и низкий уровень маркетинга.</li>
+      <li data-n="—">Перспективы развития туризма в Челябинской области связаны с комплексным подходом: модернизацией, обустройством маршрутов, активным продвижением и повышением качества сервиса.</li>
+      <li data-n="—">Реализация рекомендаций позволит сделать туристический поток более равномерным по территории всего региона и раскрыть потенциал Южного Урала как самобытного и привлекательного направления.</li>
+    </ul>
+  </div>
+</section>
+
+<footer>
+  <span>Патрин Николай, 10 «А» класс &nbsp;&nbsp; МБОУ «СОШ №3 г. Челябинска» &nbsp;&nbsp; 2025/2026</span>
+  <a href="#intro">Наверх</a>
+</footer>
+
+<script>
+  // Burger menu
+  function toggleMenu() {
+    const burger = document.getElementById('burger');
+    const menu = document.getElementById('mobileMenu');
+    burger.classList.toggle('open');
+    menu.classList.toggle('open');
+    document.body.style.overflow = menu.classList.contains('open') ? 'hidden' : '';
+  }
+  function closeMenu() {
+    document.getElementById('burger').classList.remove('open');
+    document.getElementById('mobileMenu').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  // Preloader
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      document.getElementById('preloader').classList.add('hidden');
+    }, 600);
+  });
+
+  // Accordion
+  function toggleAcc(btn) {
+    const body = btn.nextElementSibling;
+    const isOpen = body.classList.contains('open');
+    // Close all in same accordion
+    btn.closest('.accordion').querySelectorAll('.acc-body').forEach(b => b.classList.remove('open'));
+    btn.closest('.accordion').querySelectorAll('.acc-btn').forEach(b => b.classList.remove('open'));
+    if (!isOpen) {
+      body.classList.add('open');
+      btn.classList.add('open');
+    }
+  }
+
+  // Intersection Observer
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => {
+          entry.target.classList.add('visible');
+        }, entry.target.dataset.delay || 0);
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  // Stagger cards
+  document.querySelectorAll('.card').forEach((el, i) => {
+    el.dataset.delay = i * 100;
+    observer.observe(el);
+  });
+  document.querySelectorAll('.reveal, .stat-item').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
